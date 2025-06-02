@@ -26,8 +26,24 @@ for file in os.listdir(mounted_path):
         tar.close()
 
 # --- Confirm extraction and paths ---
-mos2_defects_folder = os.path.join(mounted_path, "mos2_defects")  # ✅ Make sure this folder exists after untar
+# Detect the extracted folder dynamically
+mounted_path = './tmp'
+
+# List non-hidden directories in the tmp folder
+extracted_folders = [
+    f for f in os.listdir(mounted_path)
+    if os.path.isdir(os.path.join(mounted_path, f)) and not f.startswith('.')
+]
+
+if not extracted_folders:
+    raise FileNotFoundError("No extracted folders found in the tmp directory!")
+
+# Pick the first folder found (assumes only one)
+mos2_defects_folder = os.path.join(mounted_path, extracted_folders[0])
+
+print("Detected extracted folder:", mos2_defects_folder)
 print("Contents of extracted folder:", os.listdir(mos2_defects_folder))
+
 
 # --- Required for OpenCV in container ---
 os.system('apt-get install -y python3-opencv')
