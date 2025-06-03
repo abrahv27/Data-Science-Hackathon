@@ -15,7 +15,7 @@ print("Downloading dataset...")
 dataset.download(mounted_path, overwrite=True)
 print("Check that the tar file is there:")
 print(os.listdir(mounted_path))
-print("molecule_images dataset download done")
+print("defect_image dataset download done")
 
 # --- Extract tar files ---
 for file in os.listdir(mounted_path):
@@ -25,13 +25,17 @@ for file in os.listdir(mounted_path):
         tar.extractall()
         tar.close()
 
+files = os.listdir('.')  # Lists all files and directories in the current directory
+print(files)
+
 print("")
-print("Content of the Images folder:")
-mos2_defects_folder = os.path.join(".","Images")
+print("Content of the mos2_defects folder:")
+mos2_defects_folder = os.path.join(".","mos2_defects")
 print(os.listdir(mos2_defects_folder))
 
 # this is needed for container
-os.system('apt-get install -y python3-opencv')
+os.system('apt-get update')
+os.system('apt-get install -y libgl1 python3-opencv --fix-missing')
     
 print("Current Directory:")
 print(os.getcwd())
@@ -69,7 +73,7 @@ os.system('cp ./mos2_defect_detection_yolov5.yaml ./outputs/mos2_defect_detectio
 os.system('python yolov5/train.py --img 640 --batch 16 --epochs 100 --data ./mos2_defect_detection_yolov5.yaml --weights yolov5s.pt')
 
 # --- Run inference ---
-os.system(f'python yolov5/detect.py --weights ./yolov5/runs/train/exp/weights/best.pt --iou 0.05 --save-txt --source {test_image_dir}')
+os.system(f'python yolov5/detect.py --weights ./yolov5/runs/train/exp/weights/best.pt --iou 0.05 --save-txt --source ./mos2_defects/Testing')
 
 # --- Save outputs for Azure ML tracking ---
 os.system('cp -r ./yolov5/runs ./outputs/')
